@@ -7,7 +7,4 @@
 
 void render()
 {
-	
-	game.render();
-
 }

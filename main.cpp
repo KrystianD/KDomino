@@ -46,7 +46,7 @@ int main()
 	oglResize(width, height);
 	
 	game.init();
-
+	
 	bool quit = false;
 	uint32_t lastSendTime = getTicks();
 	while (!quit)
@@ -124,34 +124,44 @@ int main()
 				sdlResize(ev.w, ev.h);
 			}
 		}
-
+		
+		float camSpeed = 0.6;
 		uint8_t *keystate = SDL_GetKeyState(0);
 		if (keystate[SDLK_w])
 		{
-			game.getCamera().goForward(1);
+			game.getCamera().goForward(camSpeed);
 		}
 		if (keystate[SDLK_s])
 		{
-			game.getCamera().goBackward(1);
+			game.getCamera().goBackward(camSpeed);
 		}
 		if (keystate[SDLK_a])
 		{
-			game.getCamera().goLeft(1);
+			game.getCamera().goLeft(camSpeed);
 		}
 		if (keystate[SDLK_d])
 		{
-			game.getCamera().goRight(1);
+			game.getCamera().goRight(camSpeed);
 		}
 		if (keystate[SDLK_q])
 		{
-			game.getCamera().goUp(1);
+			game.getCamera().goUp(camSpeed);
 		}
 		if (keystate[SDLK_e])
 		{
-			game.getCamera().goDown(1);
+			game.getCamera().goDown(camSpeed);
 		}
 		
-		render();
+		float dt;
+		static uint32_t lastTicks = 0;
+		if (lastTicks == 0) lastTicks = getTicks();
+		uint32_t diff = getTicks() - lastTicks;
+		if (diff > 0)
+		{
+			float dt = (float)diff / 1000.0f;
+			game.render(dt);
+			lastTicks = getTicks();
+		}
 		sdlSwap();
 	}
 	
