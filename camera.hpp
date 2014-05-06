@@ -1,3 +1,6 @@
+#ifndef __CAMERA_H__
+#define __CAMERA_H__
+
 #include <glm/vec3.hpp>
 using namespace glm;
 
@@ -34,3 +37,5 @@ public:
 private:
 	vec3 m_position, m_rotation;
 };
+
+#endif

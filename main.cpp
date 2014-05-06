@@ -10,6 +10,8 @@
 #include "ogl.h"
 #include "sdl.h"
 #include "camera.hpp"
+#include "render.hpp"
+#include "game.hpp"
 
 #include <GL/gl.h>
 #include <GL/glu.h>
@@ -31,7 +33,6 @@ using namespace std;
 
 int width = 600;
 int height = 600;
-Camera c;
 
 void render();
 
@@ -44,6 +45,8 @@ int main()
 		
 	oglResize(width, height);
 	
+	game.init();
+
 	bool quit = false;
 	uint32_t lastSendTime = getTicks();
 	while (!quit)
@@ -77,13 +80,16 @@ int main()
 			{
 				SDL_MouseMotionEvent ev = event.motion;
 				
-				printf("%d %d\n", ev.y, ev.x);
-				printf("%d %d\n", ev.xrel, ev.yrel);
-				
+				static bool first = true;
+				if (first)
+				{
+					first = false;
+					break;
+				}
 				float xrel = -(float)ev.xrel / 100.0f;
-				float yrel = -(float)ev.yrel / 100.0f;
+				float yrel = (float)ev.yrel / 100.0f;
 				
-				c.setRotation(c.getRotation() + vec3(yrel, xrel, 0));
+				game.getCamera().setRotation(game.getCamera().getRotation() + vec3(yrel, xrel, 0));
 			}
 			else if (event.type == SDL_MOUSEBUTTONUP)
 			{
@@ -122,27 +128,27 @@ int main()
 		uint8_t *keystate = SDL_GetKeyState(0);
 		if (keystate[SDLK_w])
 		{
-			c.goForward(1);
+			game.getCamera().goForward(1);
 		}
-		else if (keystate[SDLK_s])
+		if (keystate[SDLK_s])
 		{
-			c.goBackward(1);
+			game.getCamera().goBackward(1);
 		}
-		else if (keystate[SDLK_a])
+		if (keystate[SDLK_a])
 		{
-			c.goLeft(1);
+			game.getCamera().goLeft(1);
 		}
-		else if (keystate[SDLK_d])
+		if (keystate[SDLK_d])
 		{
-			c.goRight(1);
+			game.getCamera().goRight(1);
 		}
-		else if (keystate[SDLK_q])
+		if (keystate[SDLK_q])
 		{
-			c.goUp(1);
+			game.getCamera().goUp(1);
 		}
-		else if (keystate[SDLK_e])
+		if (keystate[SDLK_e])
 		{
-			c.goDown(1);
+			game.getCamera().goDown(1);
 		}
 		
 		render();
@@ -152,26 +158,4 @@ int main()
 	sdlClose();
 	
 	return 0;
-}
-
-void render()
-{
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
-	
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	c.setOglMatrix();
-	// glTranslatef(x, y, 0);
-	// glScalef(scale, scale, scale);
-	
-	glColor3f(1, 1, 1);
-	glTranslated(0, 0, 40);
-	GLUquadric *q = gluNewQuadric();
-	gluSphere(q, 10, 30, 30);
-	glTranslated(20, 0, 40);
-	gluSphere(q, 10, 30, 30);
-	gluDeleteQuadric(q);
-	
-	c.setOglMatrix();
 }

@@ -27,6 +27,5 @@ void oglResize(int width, int height)
 	glLoadIdentity();
 	// glOrtho(0, width, 0, height, -100, 100);
 	glViewport(0, 0, width, height);
-	gluPerspective(60.0, (float)width / (float)height, 10, 10000);
-	glScalef(1, 1, 1);
+	gluPerspective(60.0, (float)width / (float)height, 0.1, 10000);
 }
