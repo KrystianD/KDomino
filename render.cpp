@@ -2,8 +2,6 @@
 
 #include "common.h"
 
-// #include "game.h"
-
 void drawBox(float x, float y, float z)
 {
 	x /= 2;

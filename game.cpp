@@ -51,7 +51,22 @@ void Game::init()
 	ilBindImage(id);
 	
 	m_grassTex = loadTexture("res/grass.jpg");
-	m_dominoTex = loadTexture("res/d.jpg");
+	// m_dominoTex = loadTexture("res/d.jpg");
+	
+	chdir("res");
+	parse_obj_scene(&m_dominoObj, "domino.obj");
+	chdir("..");
+	
+	for (int i = 0; i < m_dominoObj.material_count; i++)
+	{
+		obj_material *m = m_dominoObj.material_list[i];
+		
+		char* path = m->texture_filename;
+		printf("load tex: %s\n", path);
+		m_dominoTex = loadTexture("res/d.jpg");
+	}
+	
+	
 	
 	odeInit();
 	
@@ -65,11 +80,16 @@ void Game::init()
 		
 		d->geom = dCreateBox(space, DOMINO_X, DOMINO_Y, DOMINO_Z);
 		dGeomSetBody(d->geom, d->body);
-
-		float z = sinf(i * 0.7) * 3;
-		float x = i * 6;
-		d->setPosition(x, 0, z, 0);
 		
+		float ang = (float)i / 100.0f * 3.14*2;
+		float z = sinf(ang) * 90;
+		float x = cosf(ang) * 90;
+		
+		if (rand() % 10 >= 5)
+			d->setPosition(x, 0, z, -ang - 3.14/2);
+		else
+			d->setPosition(x, 0, z, -ang + 3.14/2);
+			
 		m_dominoes.push_back(d);
 	}
 }
@@ -83,7 +103,7 @@ void Game::odeInit()
 	dWorldSetCFM(world, 1e-5);
 	dCreatePlane(space, 0, 1, 0, 0);
 	contactgroup = dJointGroupCreate(0);
-
+	
 	// // run simulation
 	body2 = dBodyCreate(world);
 	geom2 = dCreateSphere(space, 1);
@@ -124,6 +144,7 @@ void Game::render(float dt)
 	
 	glEnd();
 	
+	
 	glm::vec3 pt = m_camera.getPosition();
 	dBodySetPosition(body2, pt.x, pt.y, pt.z);
 	
@@ -135,12 +156,38 @@ void Game::render(float dt)
 	{
 		Domino *d = m_dominoes[i];
 		
-		double *M = d->getMatrix();
-
 		glBindTexture(GL_TEXTURE_2D, m_dominoTex);
 		glPushMatrix();
-		glMultTransposeMatrixd(M);
-		drawBox(DOMINO_X, DOMINO_Y, DOMINO_Z);
+		glMultTransposeMatrixd(d->getMatrix());
+		// drawBox(DOMINO_X, DOMINO_Y, DOMINO_Z);
+		
+		// printf("a %d\n", m_dominoObj.face_count);
+		obj_face **f = m_dominoObj.face_list;
+		for (int i = 0; i < m_dominoObj.face_count; i++)
+		{
+			obj_face *f = m_dominoObj.face_list[i];
+			
+			glBegin(GL_TRIANGLES);
+			
+			for (int j = 0; j < f->vertex_count; j++)
+			{
+				int v = f->vertex_index[j];
+				int t = f->texture_index[j];
+				
+				obj_vector *vect = m_dominoObj.vertex_list[v];
+				obj_vector *uv = m_dominoObj.vertex_texture_list[t];
+				
+				glTexCoord2f(uv->e[0], uv->e[1]);
+				glVertex3f(vect->e[0], vect->e[1], vect->e[2]);
+			}
+			
+			glEnd();
+			
+			// printf("%d\n", f->vertex_count);
+		}
+		
+		
+		
 		glColor3f(1, 1, 1);
 		glPopMatrix();
 	}

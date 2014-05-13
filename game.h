@@ -5,6 +5,8 @@
 #include "common.h"
 #include "camera.h"
 
+#include "3rd/obj_parser.h"
+
 class Domino
 {
 public:
@@ -62,6 +64,7 @@ public:
 	vector<Domino*> m_dominoes;
 
 	uint m_grassTex, m_dominoTex;
+	obj_scene_data m_dominoObj;
 };
 
 extern Game game;

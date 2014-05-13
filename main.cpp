@@ -37,8 +37,14 @@ int height = 600;
 
 void render();
 
+#include "3rd/obj_parser.h"
 int main()
 {
+	// chdir("res");
+	// obj_scene_data m_dominoObj;
+	// parse_obj_scene(&m_dominoObj, "beretta.obj");
+	// printf("ASD\n");
+
 	if (!sdlInit(width, height))
 		return 1;
 	if (!oglInit())
