@@ -12,6 +12,8 @@ flags = [
 '-Wall',
 '-Wextra',
 '-Werror',
+'-x',
+'c++',
 ]
 
 

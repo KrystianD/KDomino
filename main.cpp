@@ -7,15 +7,16 @@
 #include <unistd.h>
 #include <errno.h>
 
-#include "ogl.h"
-#include "sdl.h"
-#include "camera.hpp"
-#include "render.hpp"
-#include "game.hpp"
-
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <SDL/SDL.h>
+
+#include "common.h"
+#include "ogl.h"
+#include "sdl.h"
+#include "camera.h"
+#include "render.h"
+#include "game.h"
 
 // #include <kutils.h>
 // #include "Color.h"
@@ -28,8 +29,8 @@ uint32_t getTicks()
 	return val;
 }
 
-#include <string>
-using namespace std;
+// #include <string>
+// using namespace std;
 
 int width = 600;
 int height = 600;
@@ -89,7 +90,7 @@ int main()
 				float xrel = -(float)ev.xrel / 100.0f;
 				float yrel = (float)ev.yrel / 100.0f;
 				
-				game.getCamera().setRotation(game.getCamera().getRotation() + vec3(yrel, xrel, 0));
+				game.getCamera().setRotation(game.getCamera().getRotation() + glm::vec3(yrel, xrel, 0));
 			}
 			else if (event.type == SDL_MOUSEBUTTONUP)
 			{

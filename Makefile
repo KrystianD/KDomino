@@ -1,3 +1,9 @@
-SOURCES=main.cpp sdl.cpp ogl.cpp camera.cpp render.cpp game.cpp
+SOURCES=main.o sdl.o ogl.o camera.o render.o game.o utils.o
+
+CFLAGS=-I.
+
+.o.o:
+	g++ -c ${CFLAGS} $< -o $@
+
 sim: $(SOURCES)
-	g++ $(SOURCES) -lSDL -lGL -lGLU -lIL -lILU -lILUT -lode -I. -o $@
+	g++ $(SOURCES) ${CFLAGS} -lSDL -lGL -lGLU -lIL -lILU -lILUT -lode -o $@

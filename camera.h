@@ -1,8 +1,7 @@
 #ifndef __CAMERA_H__
 #define __CAMERA_H__
 
-#include <glm/vec3.hpp>
-using namespace glm;
+#include "common.h"
 
 class Camera
 {
@@ -10,21 +9,21 @@ public:
 	Camera();
 	~Camera();
 	
-	vec3 getPosition() const { return m_position; }
+	glm::vec3 getPosition() const { return m_position; }
 	void setPosition(float x, float y, float z)
 	{
-		m_position = vec3(x, y, z);
+		m_position = glm::vec3(x, y, z);
 	}
-	void setPosition(const vec3& v)
+	void setPosition(const glm::vec3& v)
 	{
 		setPosition(v.x, v.y, v.z);
 	}
 
-	vec3 getRotation() const { return m_rotation; }
-	void setRotation(const vec3& v) { m_rotation = v; }
+	glm::vec3 getRotation() const { return m_rotation; }
+	void setRotation(const glm::vec3& v) { m_rotation = v; }
 
-	vec3 getDir();
-	vec3 getUp();
+	glm::vec3 getDir();
+	glm::vec3 getUp();
 	
 	void goForward(float val);
 	void goBackward(float val);
@@ -35,7 +34,7 @@ public:
 
 	void setOglMatrix();
 private:
-	vec3 m_position, m_rotation;
+	glm::vec3 m_position, m_rotation;
 };
 
 #endif

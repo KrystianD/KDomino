@@ -1,4 +1,4 @@
-#include "camera.hpp"
+#include "camera.h"
 
 #include <stdio.h>
 
@@ -6,9 +6,7 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
-#define GLM_FORCE_RADIANS
-#include <glm/glm.hpp>
-#include <glm/gtx/rotate_vector.hpp>
+using namespace glm;
 
 Camera::Camera()
 {
