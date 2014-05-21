@@ -13,6 +13,7 @@ public:
 	dBodyID body;
 	dGeomID geom;
 	dMass m;
+	uint texId;
 
 	void setPosition(double x, double y, double z, float ang)
 	{
@@ -64,6 +65,7 @@ public:
 	vector<Domino*> m_dominoes;
 
 	uint m_grassTex, m_dominoTex;
+	vector<uint> m_dominoTextures;
 	obj_scene_data m_dominoObj;
 };
 

@@ -1,9 +1,9 @@
 #ifndef __COMMON_H__
 #define __COMMON_H__
 
-const double DOMINO_X = 0.5;
+const double DOMINO_X = 3;
 const double DOMINO_Y = 8;
-const double DOMINO_Z = 3;
+const double DOMINO_Z = 0.5;
 
 #include <stdio.h>
 #include <stdlib.h>

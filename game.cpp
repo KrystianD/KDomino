@@ -35,8 +35,6 @@ static void nearCallback(void *data, dGeomID o1, dGeomID o2)
 	}
 }
 
-
-ILuint ImageName;
 void Game::init()
 {
 	m_camera.setPosition(0, 6, -10);
@@ -53,9 +51,9 @@ void Game::init()
 	m_grassTex = loadTexture("res/grass.jpg");
 	// m_dominoTex = loadTexture("res/d.jpg");
 	
-	chdir("res");
-	parse_obj_scene(&m_dominoObj, "domino.obj");
-	chdir("..");
+	// chdir("res");
+	// parse_obj_scene(&m_dominoObj, "domino.obj");
+	// chdir("..");
 	
 	for (int i = 0; i < m_dominoObj.material_count; i++)
 	{
@@ -65,8 +63,14 @@ void Game::init()
 		printf("load tex: %s\n", path);
 		m_dominoTex = loadTexture("res/d.jpg");
 	}
-	
-	
+
+	for (int i = 1; i <= 23; i++)
+	{
+		char path[100];
+		sprintf(path, "textures/domino%d.jpg", i);
+		uint tex = loadTexture(path);
+		m_dominoTextures.push_back(tex);
+	}
 	
 	odeInit();
 	
@@ -90,6 +94,8 @@ void Game::init()
 		else
 			d->setPosition(x, 0, z, -ang + 3.14/2);
 			
+		d->texId = rand() % 23;
+		printf("%d\n", d->texId);
 		m_dominoes.push_back(d);
 	}
 }
@@ -128,7 +134,9 @@ void Game::render(float dt)
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	m_camera.setOglMatrix();
+	glScalef(1, 1, -1);
 	
+	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, m_grassTex);
 	glBegin(GL_QUADS);
 	
@@ -143,7 +151,8 @@ void Game::render(float dt)
 	glVertex3f(-w, 0, w);
 	
 	glEnd();
-	
+
+	// printf("%f %f %f\r\n", m_camera.getPosition().x, m_camera.getPosition().y, m_camera.getPosition().z);
 	
 	glm::vec3 pt = m_camera.getPosition();
 	dBodySetPosition(body2, pt.x, pt.y, pt.z);
@@ -156,35 +165,35 @@ void Game::render(float dt)
 	{
 		Domino *d = m_dominoes[i];
 		
-		glBindTexture(GL_TEXTURE_2D, m_dominoTex);
+		glBindTexture(GL_TEXTURE_2D, m_dominoTextures[d->texId]);
 		glPushMatrix();
 		glMultTransposeMatrixd(d->getMatrix());
-		// drawBox(DOMINO_X, DOMINO_Y, DOMINO_Z);
+		drawDomino(DOMINO_X, DOMINO_Y, DOMINO_Z);
 		
 		// printf("a %d\n", m_dominoObj.face_count);
-		obj_face **f = m_dominoObj.face_list;
-		for (int i = 0; i < m_dominoObj.face_count; i++)
-		{
-			obj_face *f = m_dominoObj.face_list[i];
+		// obj_face **f = m_dominoObj.face_list;
+		// for (int i = 0; i < m_dominoObj.face_count; i++)
+		// {
+			// obj_face *f = m_dominoObj.face_list[i];
 			
-			glBegin(GL_TRIANGLES);
+			// glBegin(GL_TRIANGLES);
 			
-			for (int j = 0; j < f->vertex_count; j++)
-			{
-				int v = f->vertex_index[j];
-				int t = f->texture_index[j];
+			// for (int j = 0; j < f->vertex_count; j++)
+			// {
+				// int v = f->vertex_index[j];
+				// int t = f->texture_index[j];
 				
-				obj_vector *vect = m_dominoObj.vertex_list[v];
-				obj_vector *uv = m_dominoObj.vertex_texture_list[t];
+				// obj_vector *vect = m_dominoObj.vertex_list[v];
+				// obj_vector *uv = m_dominoObj.vertex_texture_list[t];
 				
-				glTexCoord2f(uv->e[0], uv->e[1]);
-				glVertex3f(vect->e[0], vect->e[1], vect->e[2]);
-			}
+				// glTexCoord2f(uv->e[0], uv->e[1]);
+				// glVertex3f(vect->e[0], vect->e[1], vect->e[2]);
+			// }
 			
-			glEnd();
+			// glEnd();
 			
-			// printf("%d\n", f->vertex_count);
-		}
+			// // printf("%d\n", f->vertex_count);
+		// }
 		
 		
 		

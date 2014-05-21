@@ -23,7 +23,7 @@ void Camera::setOglMatrix()
 	
 	vec3 pt = m_position + dir;
 
-	gluLookAt(m_position.x, m_position.y, m_position.z, pt.x, pt.y, pt.z, up.x, up.y, up.z);
+	gluLookAt(-m_position.x, m_position.y, -m_position.z, -pt.x, pt.y, -pt.z, up.x, up.y, up.z);
 }
 
 vec3 Camera::getDir()

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <stdint.h>
 #include <cmath>
 #include <stdint.h>
 #include <sys/time.h>
@@ -110,8 +111,6 @@ int main()
 			else if (event.type == SDL_MOUSEBUTTONDOWN)
 			{
 				SDL_MouseButtonEvent ev = event.button;
-				float newScale, dv;
-				int evy;
 				switch (ev.button)
 				{
 				case 1:
@@ -132,7 +131,7 @@ int main()
 			}
 		}
 		
-		float camSpeed = 0.6;
+		float camSpeed = 0.1;
 		uint8_t *keystate = SDL_GetKeyState(0);
 		if (keystate[SDLK_w])
 		{
