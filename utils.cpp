@@ -12,9 +12,9 @@ void printMatrix(const glm::mat4x4& m)
 		printf("\n");
 	}
 }
-double* glmToODE(const glm::mat4x4& m)
+dReal* glmToODE(const glm::mat4x4& m)
 {
-	static double R[12];
+	static dReal R[12];
 	R[0] = glm::row(m, 0).x;
 	R[1] = glm::row(m, 0).y;
 	R[2] = glm::row(m, 0).z;

@@ -31,7 +31,8 @@ public:
 		const dReal *R = dGeomGetRotation(geom);
 
 		memset(m, 0, sizeof(double) * 16);
-		memcpy(m, R, sizeof(double) * 12);
+		for (int i = 0; i < 12; i++)
+			m[i] = R[i];
 		m[3] = pos[0];
 		m[7] = pos[1];
 		m[11] = pos[2];
