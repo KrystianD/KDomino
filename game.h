@@ -51,6 +51,8 @@ public:
 	void init();
 	void odeInit();
 	void render(float dt);
+
+	void drawMouse(int x, int y);
 	
 // private:
 	Camera m_camera;
@@ -67,6 +69,10 @@ public:
 	uint m_grassTex, m_dominoTex;
 	vector<uint> m_dominoTextures;
 	obj_scene_data m_dominoObj;
+
+
+	//drawing
+	glm::vec3 m_drawLastPt;
 };
 
 extern Game game;

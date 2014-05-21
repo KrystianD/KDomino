@@ -22,8 +22,6 @@ bool sdlInit(int width, int height)
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	
-	SDL_ShowCursor(0);
-	SDL_WM_GrabInput(SDL_GRAB_ON);
 	
 	if (!sdlResize(width, height))
 		return false;

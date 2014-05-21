@@ -45,7 +45,7 @@ int main()
 	// obj_scene_data m_dominoObj;
 	// parse_obj_scene(&m_dominoObj, "beretta.obj");
 	// printf("ASD\n");
-
+	
 	if (!sdlInit(width, height))
 		return 1;
 	if (!oglInit())
@@ -57,8 +57,12 @@ int main()
 	
 	bool quit = false;
 	uint32_t lastSendTime = getTicks();
+	bool rotating = false;
+	bool drawing = false;
 	while (!quit)
 	{
+		uint8_t *keystate = SDL_GetKeyState(0);
+		
 		SDL_Event event;
 		while (SDL_PollEvent(&event))
 		{
@@ -73,31 +77,45 @@ int main()
 				case SDLK_ESCAPE:
 					quit = true;
 					break;
-				case SDLK_UP:
-					break;
-				case SDLK_DOWN:
-					break;
-				case SDLK_LEFT:
-					break;
-				case SDLK_RIGHT:
+				case SDLK_LCTRL:
+					// SDL_ShowCursor(0);
+					// SDL_WM_GrabInput(SDL_GRAB_ON);
+					// rotating = true;
 					break;
 				}
-				
+			}
+			else if (event.type == SDL_KEYUP)
+			{
+				switch (event.key.keysym.sym)
+				{
+				case SDLK_LCTRL:
+					// SDL_ShowCursor(1);
+					// SDL_WM_GrabInput(SDL_GRAB_OFF);
+					// rotating = false;
+					break;
+				}
 			}
 			else if (event.type == SDL_MOUSEMOTION)
 			{
 				SDL_MouseMotionEvent ev = event.motion;
 				
-				static bool first = true;
-				if (first)
+				if (rotating)
 				{
-					first = false;
-					break;
+					static bool first = true;
+					if (first)
+					{
+						first = false;
+						break;
+					}
+					float xrel = -(float)ev.xrel / 100.0f;
+					float yrel = (float)ev.yrel / 100.0f;
+					
+					game.getCamera().setRotation(game.getCamera().getRotation() + glm::vec3(yrel, xrel, 0));
 				}
-				float xrel = -(float)ev.xrel / 100.0f;
-				float yrel = (float)ev.yrel / 100.0f;
-				
-				game.getCamera().setRotation(game.getCamera().getRotation() + glm::vec3(yrel, xrel, 0));
+				if (drawing)
+				{
+					game.drawMouse(ev.x, ev.y);
+				}
 			}
 			else if (event.type == SDL_MOUSEBUTTONUP)
 			{
@@ -105,6 +123,9 @@ int main()
 				switch (ev.button)
 				{
 				case 1:
+					// rotating = false;
+					// SDL_ShowCursor(1);
+					// SDL_WM_GrabInput(SDL_GRAB_OFF);
 					break;
 				}
 			}
@@ -114,6 +135,16 @@ int main()
 				switch (ev.button)
 				{
 				case 1:
+					if (keystate[SDLK_LCTRL])
+					{
+						drawing = true;
+					}
+					else
+					{
+						SDL_ShowCursor(0);
+						// SDL_WM_GrabInput(SDL_GRAB_ON);
+						rotating = true;
+					}
 					break;
 				case 5: // scroll down
 					break;
@@ -131,8 +162,15 @@ int main()
 			}
 		}
 		
-		float camSpeed = 0.1;
-		uint8_t *keystate = SDL_GetKeyState(0);
+		if (!(SDL_GetMouseState(0, 0) & SDL_BUTTON(1)))
+		{
+			rotating = false;
+			drawing = false;
+			SDL_ShowCursor(1);
+			SDL_WM_GrabInput(SDL_GRAB_OFF);
+		}
+		
+		float camSpeed = 0.6;
 		if (keystate[SDLK_w])
 		{
 			game.getCamera().goForward(camSpeed);

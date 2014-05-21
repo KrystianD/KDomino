@@ -3,6 +3,8 @@
 #include "utils.h"
 #include "render.h"
 
+#include <cmath>
+
 Game game;
 
 static void nearCallback(void *data, dGeomID o1, dGeomID o2)
@@ -63,7 +65,7 @@ void Game::init()
 		printf("load tex: %s\n", path);
 		m_dominoTex = loadTexture("res/d.jpg");
 	}
-
+	
 	for (int i = 1; i <= 23; i++)
 	{
 		char path[100];
@@ -74,30 +76,29 @@ void Game::init()
 	
 	odeInit();
 	
-	for (int i = 0; i < 100; i++)
-	{
-		Domino *d = new Domino();
-		dMassSetBox(&d->m, 10, DOMINO_X, DOMINO_Y, DOMINO_Z);
+	// for (int i = 0; i < 100; i++)
+	// {
+		// Domino *d = new Domino();
+		// dMassSetBox(&d->m, 10, DOMINO_X, DOMINO_Y, DOMINO_Z);
 		
-		d->body = dBodyCreate(world);
-		dBodySetMass(d->body, &d->m);
+		// d->body = dBodyCreate(world);
+		// dBodySetMass(d->body, &d->m);
 		
-		d->geom = dCreateBox(space, DOMINO_X, DOMINO_Y, DOMINO_Z);
-		dGeomSetBody(d->geom, d->body);
+		// d->geom = dCreateBox(space, DOMINO_X, DOMINO_Y, DOMINO_Z);
+		// dGeomSetBody(d->geom, d->body);
 		
-		float ang = (float)i / 100.0f * 3.14*2;
-		float z = sinf(ang) * 90;
-		float x = cosf(ang) * 90;
+		// float ang = (float)i / 100.0f * 3.14 * 2;
+		// float z = sinf(ang) * 90;
+		// float x = cosf(ang) * 90;
 		
-		if (rand() % 10 >= 5)
-			d->setPosition(x, 0, z, -ang - 3.14/2);
-		else
-			d->setPosition(x, 0, z, -ang + 3.14/2);
+		// if (rand() % 10 >= 5)
+			// d->setPosition(x, 0, z, -ang - 3.14 / 2);
+		// else
+			// d->setPosition(x, 0, z, -ang + 3.14 / 2);
 			
-		d->texId = rand() % 23;
-		printf("%d\n", d->texId);
-		m_dominoes.push_back(d);
-	}
+		// d->texId = rand() % 23;
+		// m_dominoes.push_back(d);
+	// }
 }
 void Game::odeInit()
 {
@@ -134,7 +135,7 @@ void Game::render(float dt)
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	m_camera.setOglMatrix();
-	glScalef(1, 1, -1);
+	glScalef(-1, 1, -1);
 	
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, m_grassTex);
@@ -151,7 +152,7 @@ void Game::render(float dt)
 	glVertex3f(-w, 0, w);
 	
 	glEnd();
-
+	
 	// printf("%f %f %f\r\n", m_camera.getPosition().x, m_camera.getPosition().y, m_camera.getPosition().z);
 	
 	glm::vec3 pt = m_camera.getPosition();
@@ -161,7 +162,7 @@ void Game::render(float dt)
 	dWorldQuickStep(world, dt);
 	dJointGroupEmpty(contactgroup);
 	
-	for (int i = 0; i < 100; i++)
+	for (int i = 0; i < m_dominoes.size(); i++)
 	{
 		Domino *d = m_dominoes[i];
 		
@@ -174,25 +175,25 @@ void Game::render(float dt)
 		// obj_face **f = m_dominoObj.face_list;
 		// for (int i = 0; i < m_dominoObj.face_count; i++)
 		// {
-			// obj_face *f = m_dominoObj.face_list[i];
-			
-			// glBegin(GL_TRIANGLES);
-			
-			// for (int j = 0; j < f->vertex_count; j++)
-			// {
-				// int v = f->vertex_index[j];
-				// int t = f->texture_index[j];
-				
-				// obj_vector *vect = m_dominoObj.vertex_list[v];
-				// obj_vector *uv = m_dominoObj.vertex_texture_list[t];
-				
-				// glTexCoord2f(uv->e[0], uv->e[1]);
-				// glVertex3f(vect->e[0], vect->e[1], vect->e[2]);
-			// }
-			
-			// glEnd();
-			
-			// // printf("%d\n", f->vertex_count);
+		// obj_face *f = m_dominoObj.face_list[i];
+		
+		// glBegin(GL_TRIANGLES);
+		
+		// for (int j = 0; j < f->vertex_count; j++)
+		// {
+		// int v = f->vertex_index[j];
+		// int t = f->texture_index[j];
+		
+		// obj_vector *vect = m_dominoObj.vertex_list[v];
+		// obj_vector *uv = m_dominoObj.vertex_texture_list[t];
+		
+		// glTexCoord2f(uv->e[0], uv->e[1]);
+		// glVertex3f(vect->e[0], vect->e[1], vect->e[2]);
+		// }
+		
+		// glEnd();
+		
+		// // printf("%d\n", f->vertex_count);
 		// }
 		
 		
@@ -200,5 +201,97 @@ void Game::render(float dt)
 		glColor3f(1, 1, 1);
 		glPopMatrix();
 	}
+	// float winZ;
+	// glReadPixels(250, 250, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ);
+	
+	// printf("winz %f\r\n", winZ);
 }
 
+#include <limits>
+template <typename genType>
+GLM_FUNC_QUALIFIER bool intersectRayPlane
+(
+	genType const & orig, genType const & dir,
+	genType const & planeOrig, genType const & planeNormal,
+	typename genType::value_type & intersectionDistance
+)
+{
+	typename genType::value_type d = glm::dot(dir, planeNormal);
+	typename genType::value_type Epsilon = std::numeric_limits<typename genType::value_type>::epsilon();
+
+	if(d < Epsilon)
+	{
+		intersectionDistance = glm::dot(planeOrig - orig, planeNormal) / d;
+		return true;
+	}
+
+	return false;
+}
+
+void Game::drawMouse(int x, int y)
+{
+	// printf("%d %d\r\n", x, y);
+	
+	double model[16];
+	glGetDoublev(GL_MODELVIEW_MATRIX, model);
+	double proj[16];
+	glGetDoublev(GL_PROJECTION_MATRIX, proj);
+	int view[4];
+	glGetIntegerv(GL_VIEWPORT, view);
+	
+	// float winZ;
+	// glReadPixels(x, 600-y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ);
+
+	double ox, oy, oz;
+	gluUnProject(
+	  x,
+	  view[2] - y,
+	  0,
+	  model,
+	  proj,
+	  view,
+	  &ox,
+	  &oy,
+	  &oz);
+
+	glm::vec3 camPos = m_camera.getPosition();
+	glm::vec3 dir (ox, oy, oz);
+	glm::vec3 camRay = glm::normalize(dir - camPos);
+
+	float dist;
+	intersectRayPlane(camPos, camRay, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0), dist);
+	// printf("ox %5.2f oy %5.2f oz %5.2f - %f\n", ox, oy, oz, dist);
+
+	glm::vec3 pt = camPos + camRay * dist;
+
+	if (glm::distance(m_drawLastPt, pt) > 3)
+	{
+		Domino *d = new Domino();
+
+		glm::vec3 dir = pt - m_drawLastPt;
+		dir = glm::normalize(dir);
+
+		float ang = atan2f(dir.x, dir.z);
+
+		printf("%.2f %.2f %.2f\n", dir.x, dir.z, ang /3.14*180);
+
+		dMassSetBox(&d->m, 10, DOMINO_X, DOMINO_Y, DOMINO_Z);
+		
+		d->body = dBodyCreate(world);
+		dBodySetMass(d->body, &d->m);
+		
+		d->geom = dCreateBox(space, DOMINO_X, DOMINO_Y, DOMINO_Z);
+		dGeomSetBody(d->geom, d->body);
+		
+		d->setPosition(pt.x, pt.y, pt.z, ang);
+			
+		d->texId = rand() % 23;
+		m_dominoes.push_back(d);
+
+		m_drawLastPt = pt;
+	}
+
+	// m_dominoes[0]->setPosition(pt.x,pt.y,pt.z,0);
+
+	// printf("%f %f %f\r\n", ox, oy, oz);
+}
