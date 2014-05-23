@@ -14,7 +14,9 @@ public:
 	dGeomID geom;
 	dMass m;
 	uint texId;
-	bool dis;
+	bool dis, touched;
+	float idleTime;
+	double initAngle;
 	dReal R[16];
 	
 	void setPosition(double x, double y, double z, float ang)
@@ -24,6 +26,11 @@ public:
 		
 		dBodySetPosition(body, x, 0 + DOMINO_Y / 2, z);
 		dBodySetRotation(body, glmToODE(m));
+	}
+	glm::vec3 getPosition()
+	{
+		const dReal *pos = dGeomGetPosition(geom);
+		return glm::vec3(pos[0], pos[1], pos[2]);
 	}
 	
 	double* getMatrix()
@@ -61,8 +68,8 @@ public:
 	void drawStop();
 	void drawStart(int x, int y);
 	void drawMouse(int x, int y);
-
-	void drawProcessPoint(int x, int y);
+	void select(int x, int y);
+	void clear();
 	
 // private:
 	Camera m_camera;
@@ -84,6 +91,11 @@ public:
 	//drawing
 	glm::vec3 m_drawLastPt;
 	bool m_drawing;
+
+	glm::vec3 unproject(int x, int y);
+	void drawProcessPoint(int x, int y);
+
+	void rolloverDomino(Domino* d);
 };
 
 extern Game game;

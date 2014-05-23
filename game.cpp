@@ -82,7 +82,7 @@ void Game::init()
 	
 	odeInit();
 	
-	// for (int i = 0; i < 100; i++)
+	// for (int i = 0; i < 30; i++)
 	// {
 	// Domino *d = new Domino();
 	// dMassSetBox(&d->m, 10, DOMINO_X, DOMINO_Y, DOMINO_Z);
@@ -93,17 +93,22 @@ void Game::init()
 	// d->geom = dCreateBox(space, DOMINO_X, DOMINO_Y, DOMINO_Z);
 	// dGeomSetBody(d->geom, d->body);
 	
-	// float ang = (float)i / 100.0f * 3.14 * 2;
-	// float z = sinf(ang) * 90;
-	// float x = cosf(ang) * 90;
+	// float ang = (float)i / 30.0f * 3.14 * 2;
+	// float z = sinf(ang) * 0.20;
+	// float x = cosf(ang) * 0.20;
 	
 	// if (rand() % 10 >= 5)
-	// d->setPosition(x, 0, z, -ang - 3.14 / 2);
+	// d->setPosition(x, 0, z, -ang);
 	// else
-	// d->setPosition(x, 0, z, -ang + 3.14 / 2);
+	// d->setPosition(x, 0, z, -ang + 3.14);
 	
 	// d->texId = rand() % 23;
 	// m_dominoes.push_back(d);
+	
+	// d->dis = false;
+	// dBodySetData(d->body, d);
+	
+	// // dBodyDisable(d->body);
 	// }
 }
 void Game::odeInit()
@@ -259,12 +264,31 @@ void Game::render(float dt)
 		{
 			d1 = dBodyGetAngularVel(d->body);
 			
+			glm::vec3 p = d->getPosition();
+			
 			double q = abs(d1[0] * d1[0] + d1[1] * d1[1] + d1[2] * d1[2]) / 3.0;
-			if (q < 1)
+			// printf("q %f\n", q);
+			if (q > 0.05)
 			{
-				d->dis = true;
-				dBodyDisable(d->body);
-				dBodyDestroy(d->body);
+				d->touched = true;
+			}
+			if (d->touched)
+			{
+				if (q < 5 || p.y < DOMINO_Y / 2 - 0.005)
+				{
+					d->idleTime += dt;
+					if (d->idleTime >= 1)
+					{
+						d->dis = true;
+						dBodyDisable(d->body);
+						dBodyDestroy(d->body);
+						dGeomDestroy(d->geom);
+					}
+				}
+				else
+				{
+					d->idleTime = 0;
+				}
 			}
 		}
 	}
@@ -310,18 +334,53 @@ void Game::drawStop()
 }
 void Game::drawStart(int x, int y)
 {
-	// m_drawing = true;
 	drawProcessPoint(x, y);
 }
 void Game::drawMouse(int x, int y)
 {
 	drawProcessPoint(x, y);
 }
-void Game::drawProcessPoint(int x, int y)
+void Game::select(int x, int y)
 {
-	// if (!m_drawing)
-		// return;
+	glm::vec3 pt = unproject(x, y);
+	// pt.y = DOMINO_Y / 2;
+	
+	for (int i = 0; i < m_dominoes.size(); i++)
+	{
+		Domino *d = m_dominoes[i];
 
+		if (d->dis)
+			continue;
+
+		glm::vec3 p = d->getPosition();
+		
+		if (glm::distance(p, pt) < DOMINO_Y + 0.02)
+		{
+			rolloverDomino(d);
+			break;
+		}
+	}
+	
+	printf("ox %5.2f oy %5.2f oz %5.2f - %f\n", pt.x, pt.y, pt.z, 0);
+}
+void Game::clear()
+{
+	for (int i = 0 ; i < m_dominoes.size(); i++)
+	{
+		Domino *d = m_dominoes[i];
+		if (!d->dis)
+		{
+			dBodyDisable(d->body);
+			dBodyDestroy(d->body);
+			dGeomDestroy(d->geom);
+		}
+		delete d;
+	}
+	m_dominoes.clear();
+}
+
+glm::vec3 Game::unproject(int x, int y)
+{
 	double model[16];
 	glGetDoublev(GL_MODELVIEW_MATRIX, model);
 	double proj[16];
@@ -334,15 +393,9 @@ void Game::drawProcessPoint(int x, int y)
 	
 	double ox, oy, oz;
 	gluUnProject(
-	  x,
-	  view[3] - y,
-	  0,
-	  model,
-	  proj,
-	  view,
-	  &ox,
-	  &oy,
-	  &oz);
+	  x, view[3] - y, 0,
+	  model, proj, view,
+	  &ox, &oy, &oz);
 	  
 	glm::vec3 camPos = m_camera.getPosition();
 	glm::vec3 dir(ox, oy, oz);
@@ -352,26 +405,30 @@ void Game::drawProcessPoint(int x, int y)
 	intersectRayPlane(camPos, camRay, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0), dist);
 	
 	glm::vec3 pt = camPos + camRay * dist;
+	
+	return pt;
+}
+void Game::drawProcessPoint(int x, int y)
+{
 	// printf("ox %5.2f oy %5.2f oz %5.2f - %f\n", pt.x, pt.y, pt.z, dist);
+	glm::vec3 pt = unproject(x, y);
 	
 	if (!m_drawing)
 	{
 		m_drawLastPt = pt;
 		m_drawing = true;
 	}
-
+	
 	while (glm::distance(m_drawLastPt, pt) > 0.03)
 	{
 		Domino *d = new Domino();
 		
 		glm::vec3 dir = pt - m_drawLastPt;
 		dir = glm::normalize(dir);
-
+		
 		m_drawLastPt += dir * 0.03f;
 		
 		float ang = atan2f(dir.x, dir.z);
-		
-		// printf("%.2f %.2f %.2f\n", dir.x, dir.z, ang / 3.14 * 180);
 		
 		dMassSetBox(&d->m, 10.0, DOMINO_X, DOMINO_Y, DOMINO_Z);
 		
@@ -382,15 +439,24 @@ void Game::drawProcessPoint(int x, int y)
 		dGeomSetBody(d->geom, d->body);
 		
 		d->setPosition(m_drawLastPt.x, m_drawLastPt.y, m_drawLastPt.z, ang + (rand() % 100 > 50 ? 3.14 : 0));
+		d->initAngle = ang;
 		
 		d->texId = rand() % 23;
-		m_dominoes.push_back(d);
-		
-		// m_drawLastPt = pt;
 		
 		d->dis = false;
+		d->touched = false;
+		d->idleTime = 0;
 		dBodySetData(d->body, d);
 		
-		dBodyDisable(d->body);
+		m_dominoes.push_back(d);
 	}
+}
+void Game::rolloverDomino(Domino* d)
+{
+	float ang = d->initAngle;
+	
+	glm::vec3 v(0, 0, 0.01);
+	v = glm::rotateY(v, ang);
+	
+	dBodyAddForce(d->body, v.x, v.y, v.z);
 }

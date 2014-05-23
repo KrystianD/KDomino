@@ -75,6 +75,9 @@ int main()
 					// SDL_WM_GrabInput(SDL_GRAB_ON);
 					// rotating = true;
 					break;
+				case SDLK_c:
+					game.clear();
+					break;
 				}
 			}
 			else if (event.type == SDL_KEYUP)
@@ -131,7 +134,11 @@ int main()
 					if (keystate[SDLK_LCTRL])
 					{
 						drawing = true;
-					game.drawStart(ev.x, ev.y);
+						game.drawStart(ev.x, ev.y);
+					}
+					else if (keystate[SDLK_LSHIFT])
+					{
+						game.select(ev.x, ev.y);
 					}
 					else
 					{
