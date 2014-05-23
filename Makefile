@@ -6,4 +6,4 @@ CFLAGS=-I. -ggdb -g
 	g++ -c $(CFLAGS) $< -o $@
 
 sim: $(SOURCES)
-	g++ $(SOURCES) $(CFLAGS) -lSDL -lGL -lGLU -lIL -lILU -lILUT -lode -o $@
+	g++ $(SOURCES) $(CFLAGS) -lSDL -lGL -lGLU -lIL -lILU -lILUT -lode -lpthread -o $@
