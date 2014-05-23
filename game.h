@@ -58,7 +58,11 @@ public:
 	void odeInit();
 	void render(float dt);
 	
+	void drawStop();
+	void drawStart(int x, int y);
 	void drawMouse(int x, int y);
+
+	void drawProcessPoint(int x, int y);
 	
 // private:
 	Camera m_camera;
@@ -79,6 +83,7 @@ public:
 	
 	//drawing
 	glm::vec3 m_drawLastPt;
+	bool m_drawing;
 };
 
 extern Game game;

@@ -26,7 +26,7 @@
 // #include <string>
 // using namespace std;
 
-int width = 600;
+int width = 1000;
 int height = 600;
 
 void render();
@@ -131,6 +131,7 @@ int main()
 					if (keystate[SDLK_LCTRL])
 					{
 						drawing = true;
+					game.drawStart(ev.x, ev.y);
 					}
 					else
 					{
@@ -157,6 +158,10 @@ int main()
 		
 		if (!(SDL_GetMouseState(0, 0) & SDL_BUTTON(1)))
 		{
+			if (drawing)
+			{
+				game.drawStop();
+			}
 			rotating = false;
 			drawing = false;
 			SDL_ShowCursor(1);

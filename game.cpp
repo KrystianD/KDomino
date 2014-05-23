@@ -304,8 +304,24 @@ GLM_FUNC_QUALIFIER bool intersectRayPlane
 	return false;
 }
 
+void Game::drawStop()
+{
+	m_drawing = false;
+}
+void Game::drawStart(int x, int y)
+{
+	// m_drawing = true;
+	drawProcessPoint(x, y);
+}
 void Game::drawMouse(int x, int y)
 {
+	drawProcessPoint(x, y);
+}
+void Game::drawProcessPoint(int x, int y)
+{
+	// if (!m_drawing)
+		// return;
+
 	double model[16];
 	glGetDoublev(GL_MODELVIEW_MATRIX, model);
 	double proj[16];
@@ -338,12 +354,20 @@ void Game::drawMouse(int x, int y)
 	glm::vec3 pt = camPos + camRay * dist;
 	// printf("ox %5.2f oy %5.2f oz %5.2f - %f\n", pt.x, pt.y, pt.z, dist);
 	
-	if (glm::distance(m_drawLastPt, pt) > 0.03)
+	if (!m_drawing)
+	{
+		m_drawLastPt = pt;
+		m_drawing = true;
+	}
+
+	while (glm::distance(m_drawLastPt, pt) > 0.03)
 	{
 		Domino *d = new Domino();
 		
 		glm::vec3 dir = pt - m_drawLastPt;
 		dir = glm::normalize(dir);
+
+		m_drawLastPt += dir * 0.03f;
 		
 		float ang = atan2f(dir.x, dir.z);
 		
@@ -357,12 +381,12 @@ void Game::drawMouse(int x, int y)
 		d->geom = dCreateBox(space, DOMINO_X, DOMINO_Y, DOMINO_Z);
 		dGeomSetBody(d->geom, d->body);
 		
-		d->setPosition(pt.x, pt.y, pt.z, ang + (rand() % 100 > 50 ? 3.14 : 0));
+		d->setPosition(m_drawLastPt.x, m_drawLastPt.y, m_drawLastPt.z, ang + (rand() % 100 > 50 ? 3.14 : 0));
 		
 		d->texId = rand() % 23;
 		m_dominoes.push_back(d);
 		
-		m_drawLastPt = pt;
+		// m_drawLastPt = pt;
 		
 		d->dis = false;
 		dBodySetData(d->body, d);
