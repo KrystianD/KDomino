@@ -25,8 +25,6 @@ using namespace std;
 
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
-// #include <glm/mat4x3.hpp>
-// #include <glm/mat4x4.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtc/matrix_access.hpp>
 #include <glm/gtc/matrix_transform.hpp>

@@ -19,26 +19,13 @@
 #include "render.h"
 #include "game.h"
 
-// #include <kutils.h>
-// #include "Color.h"
-
-
-// #include <string>
-// using namespace std;
-
 int width = 1000;
 int height = 600;
 
 void render();
 
-#include "3rd/obj_parser.h"
 int main()
 {
-	// chdir("res");
-	// obj_scene_data m_dominoObj;
-	// parse_obj_scene(&m_dominoObj, "beretta.obj");
-	// printf("ASD\n");
-	
 	if (!sdlInit(width, height))
 		return 1;
 	if (!oglInit())
@@ -71,9 +58,6 @@ int main()
 					quit = true;
 					break;
 				case SDLK_LCTRL:
-					// SDL_ShowCursor(0);
-					// SDL_WM_GrabInput(SDL_GRAB_ON);
-					// rotating = true;
 					break;
 				case SDLK_c:
 					game.clear();
@@ -85,9 +69,6 @@ int main()
 				switch (event.key.keysym.sym)
 				{
 				case SDLK_LCTRL:
-					// SDL_ShowCursor(1);
-					// SDL_WM_GrabInput(SDL_GRAB_OFF);
-					// rotating = false;
 					break;
 				}
 			}
@@ -119,9 +100,6 @@ int main()
 				switch (ev.button)
 				{
 				case 1:
-					// rotating = false;
-					// SDL_ShowCursor(1);
-					// SDL_WM_GrabInput(SDL_GRAB_OFF);
 					break;
 				}
 			}
@@ -147,9 +125,9 @@ int main()
 						rotating = true;
 					}
 					break;
-				case 5: // scroll down
+				case 5:
 					break;
-				case 4: // scroll up
+				case 4:
 					break;
 				}
 			}

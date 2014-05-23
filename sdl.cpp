@@ -22,7 +22,6 @@ bool sdlInit(int width, int height)
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	
-	
 	if (!sdlResize(width, height))
 		return false;
 		

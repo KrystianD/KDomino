@@ -3,6 +3,7 @@
 #include "utils.h"
 #include "render.h"
 
+#include <limits>
 #include <cmath>
 
 Game game;
@@ -20,7 +21,7 @@ static void nearCallback(void *data, dGeomID o1, dGeomID o2)
 	int numc = dCollide(o1, o2, N, &(contact[0].geom), sizeof(dContact));
 	for (int i = 0; i < numc; i++)
 	{
-		contact[i].surface.mode = dContactApprox1;//0;//dContactSoftCFM;//dContactSlip2;// 0;//dContactSoftCFM;
+		contact[i].surface.mode = dContactApprox1;
 		if ((b1) == 0 || (b2) == 0)
 			contact[i].surface.mu = 1;
 		else
@@ -31,16 +32,6 @@ static void nearCallback(void *data, dGeomID o1, dGeomID o2)
 		dJointID c = dJointCreateContact(game->world, game->contactgroup, &contact[i]);
 		dJointAttach(c, b1, b2);
 	}
-	
-	static int q = 0;
-	static uint32_t l = 0;
-	if (getTicks() - l >= 1000)
-	{
-		l = getTicks();
-		printf("%d\n", q);
-		q = 0;
-	}
-	q++;
 }
 
 void Game::init()
@@ -56,21 +47,9 @@ void Game::init()
 	ilGenImages(1, &id);
 	ilBindImage(id);
 	
-	m_grassTex = loadTexture("res/grass.jpg");
-	// m_dominoTex = loadTexture("res/d.jpg");
-	
-	// chdir("res");
-	// parse_obj_scene(&m_dominoObj, "domino.obj");
-	// chdir("..");
-	
-	// for (int i = 0; i < m_dominoObj.material_count; i++)
-	// {
-	// obj_material *m = m_dominoObj.material_list[i];
-	
-	// char* path = m->texture_filename;
-	// printf("load tex: %s\n", path);
-	// }
-	m_dominoTex = loadTexture("a.jpg");
+	m_grassTex = loadTexture("textures/grass.jpg");
+
+	m_universeTex = loadTexture("textures/universe.jpg");
 	
 	for (int i = 1; i <= 23; i++)
 	{
@@ -81,35 +60,6 @@ void Game::init()
 	}
 	
 	odeInit();
-	
-	// for (int i = 0; i < 30; i++)
-	// {
-	// Domino *d = new Domino();
-	// dMassSetBox(&d->m, 10, DOMINO_X, DOMINO_Y, DOMINO_Z);
-	
-	// d->body = dBodyCreate(world);
-	// dBodySetMass(d->body, &d->m);
-	
-	// d->geom = dCreateBox(space, DOMINO_X, DOMINO_Y, DOMINO_Z);
-	// dGeomSetBody(d->geom, d->body);
-	
-	// float ang = (float)i / 30.0f * 3.14 * 2;
-	// float z = sinf(ang) * 0.20;
-	// float x = cosf(ang) * 0.20;
-	
-	// if (rand() % 10 >= 5)
-	// d->setPosition(x, 0, z, -ang);
-	// else
-	// d->setPosition(x, 0, z, -ang + 3.14);
-	
-	// d->texId = rand() % 23;
-	// m_dominoes.push_back(d);
-	
-	// d->dis = false;
-	// dBodySetData(d->body, d);
-	
-	// // dBodyDisable(d->body);
-	// }
 }
 void Game::odeInit()
 {
@@ -146,67 +96,54 @@ void Game::render(float dt)
 	glTranslatef(m_camera.getPosition().x, m_camera.getPosition().y, m_camera.getPosition().z);
 	
 	// draw sphere
-	int n;
-	double a;
-	double b;
-	const double div = 10;
-	// glDepthFunc(GL_GREATER);
-	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, m_dominoTex);
+	glBindTexture(GL_TEXTURE_2D, m_universeTex);
 	glColor3f(1, 1, 1);
 	glBegin(GL_TRIANGLE_STRIP);
-	double PI = M_PI;
+	const double div = 10;
 	double R = 10;
-	double H = 0, K = 0;
 	
-	for (b = 0; b <= 180 - div; b += div)
+	for (double b = 0; b <= 180 - div; b += div)
 	{
-		for (a = 0; a <= 360 - div; a += div)
+		for (double a = 0; a <= 360 - div; a += div)
 		{
 			float X, Y, Z, U, V;
 			
-			X = R * sin((a) / 180 * PI) * sin((b) / 180 * PI) - H;
-			Y = R * cos((a) / 180 * PI) * sin((b) / 180 * PI) + K;
-			Z = R * cos((b) / 180 * PI) ;
+			X = R * sin((a) / 180 * M_PI) * sin((b) / 180 * M_PI);
+			Y = R * cos((a) / 180 * M_PI) * sin((b) / 180 * M_PI);
+			Z = R * cos((b) / 180 * M_PI);
 			V = (2 * b) / 360;
 			U = (a) / 360;
-			n++;
-			
 			U *= 10;
 			V *= 10;
 			glTexCoord2f(U, V);
 			glVertex3f(X, Y, Z);
 			
-			X = R * sin((a) / 180 * PI) * sin((b + div) / 180 * PI) - H;
-			Y = R * cos((a) / 180 * PI) * sin((b + div) / 180 * PI) + K;
-			Z = R * cos((b + div) / 180 * PI) ;
+			X = R * sin((a) / 180 * M_PI) * sin((b + div) / 180 * M_PI);
+			Y = R * cos((a) / 180 * M_PI) * sin((b + div) / 180 * M_PI);
+			Z = R * cos((b + div) / 180 * M_PI);
 			V = (2 * (b + div)) / 360;
 			U = (a) / 360;
-			n++;
 			U *= 10;
 			V *= 10;
 			glTexCoord2f(U, V);
 			glVertex3f(X, Y, Z);
 			
-			X = R * sin((a + div) / 180 * PI) * sin((b) / 180 * PI) - H;
-			Y = R * cos((a + div) / 180 * PI) * sin((b) / 180 * PI) + K;
-			Z = R * cos((b) / 180 * PI) ;
+			X = R * sin((a + div) / 180 * M_PI) * sin((b) / 180 * M_PI);
+			Y = R * cos((a + div) / 180 * M_PI) * sin((b) / 180 * M_PI);
+			Z = R * cos((b) / 180 * M_PI);
 			V = (2 * b) / 360;
 			U = (a + div) / 360;
-			n++;
 			U *= 10;
 			V *= 10;
 			glTexCoord2f(U, V);
 			glVertex3f(X, Y, Z);
 			
-			X = R * sin((a + div) / 180 * PI) * sin((b + div) / 180 * PI) - H;
-			Y = R * cos((a + div) / 180 * PI) * sin((b + div) / 180 * PI) + K;
-			Z = R * cos((b + div) / 180 * PI) ;
+			X = R * sin((a + div) / 180 * M_PI) * sin((b + div) / 180 * M_PI);
+			Y = R * cos((a + div) / 180 * M_PI) * sin((b + div) / 180 * M_PI);
+			Z = R * cos((b + div) / 180 * M_PI);
 			V = (2 * (b + div)) / 360;
 			U = (a + div) / 360;
-			n++;
-			
 			U *= 10;
 			V *= 10;
 			glTexCoord2f(U, V);
@@ -267,7 +204,6 @@ void Game::render(float dt)
 			glm::vec3 p = d->getPosition();
 			
 			double q = abs(d1[0] * d1[0] + d1[1] * d1[1] + d1[2] * d1[2]) / 3.0;
-			// printf("q %f\n", q);
 			if (q > 0.05)
 			{
 				d->touched = true;
@@ -307,7 +243,6 @@ void Game::render(float dt)
 	}
 }
 
-#include <limits>
 template <typename genType>
 GLM_FUNC_QUALIFIER bool intersectRayPlane
 (
@@ -343,7 +278,6 @@ void Game::drawMouse(int x, int y)
 void Game::select(int x, int y)
 {
 	glm::vec3 pt = unproject(x, y);
-	// pt.y = DOMINO_Y / 2;
 	
 	for (int i = 0; i < m_dominoes.size(); i++)
 	{
@@ -354,14 +288,12 @@ void Game::select(int x, int y)
 
 		glm::vec3 p = d->getPosition();
 		
-		if (glm::distance(p, pt) < DOMINO_Y + 0.02)
+		if (glm::distance(p, pt) < DOMINO_Y / 2 + 0.01)
 		{
 			rolloverDomino(d);
 			break;
 		}
 	}
-	
-	printf("ox %5.2f oy %5.2f oz %5.2f - %f\n", pt.x, pt.y, pt.z, 0);
 }
 void Game::clear()
 {
@@ -388,9 +320,6 @@ glm::vec3 Game::unproject(int x, int y)
 	int view[4];
 	glGetIntegerv(GL_VIEWPORT, view);
 	
-	// float winZ;
-	// glReadPixels(x, 600-y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ);
-	
 	double ox, oy, oz;
 	gluUnProject(
 	  x, view[3] - y, 0,
@@ -402,7 +331,8 @@ glm::vec3 Game::unproject(int x, int y)
 	glm::vec3 camRay = glm::normalize(dir - camPos);
 	
 	float dist;
-	intersectRayPlane(camPos, camRay, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0), dist);
+	if (!intersectRayPlane(camPos, camRay, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0), dist))
+		return glm::vec3(0, -1, 0);
 	
 	glm::vec3 pt = camPos + camRay * dist;
 	
@@ -410,8 +340,9 @@ glm::vec3 Game::unproject(int x, int y)
 }
 void Game::drawProcessPoint(int x, int y)
 {
-	// printf("ox %5.2f oy %5.2f oz %5.2f - %f\n", pt.x, pt.y, pt.z, dist);
 	glm::vec3 pt = unproject(x, y);
+	if (pt.y == -1 || pt.x < -2 || pt.x > 2 || pt.z < -2 || pt.z > 2)
+		return;
 	
 	if (!m_drawing)
 	{
